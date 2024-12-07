@@ -1,9 +1,13 @@
 #include <fstream>
+#include <iostream>
+#include <format>
 
 #include "funcs.hpp"
-namespace fs = std::filesystem;
 
-void imgToHpp(const fs::path& img) {
+#define RED    "\x1B[91m"
+#define RESET  "\x1B[0m"
+
+void imgToHeader(const fs::path& img) {
    std::ifstream image{img, std::ios::binary | std::ios::ate};
    std::ofstream header{img.string().substr(0, img.string().find_last_of('.')) + ".hpp"};
    size_t length = image.tellg();
@@ -20,8 +24,13 @@ void imgToHpp(const fs::path& img) {
    header << "constexpr unsigned char " + img.string().substr(0, img.string().find_last_of('.')) + "[0x" << std::hex << length + 1 << "] = {\n\t ";
 
    unsigned char pixel;
-   while (image.read(reinterpret_cast<char*>(&pixel), sizeof(unsigned char))) {
-      header << "0x" << std::hex << int(pixel) << (image.tellg() != length ? ", " : ", 0x00");
+   size_t position = 0;
+   while (image.read(reinterpret_cast<char*>(&pixel), sizeof(unsigned char))) { // same as doing sizeof(char)
+      header << "0x" << std::hex << int(pixel) << (++position != length ? ", " : ", 0x00");
    }
    header << "};\n";
+}
+
+void error(std::string_view err) {
+   std::cerr << RED "error: " RESET << err << '\n';
 }

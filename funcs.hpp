@@ -1,5 +1,10 @@
 #pragma once
 
+#include <string_view>
 #include <filesystem>
 
-void imgToHpp(const std::filesystem::path& img);
+namespace fs = std::filesystem;
+
+void imgToHeader(const fs::path& img);
+
+void error(std::string_view err);
