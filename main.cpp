@@ -2,7 +2,6 @@
 #include <string_view>
 #include "funcs.hpp"
 
-namespace fs = std::filesystem;
 
 int main(int argc, char** argv) {
    if (argc >= 2) {
