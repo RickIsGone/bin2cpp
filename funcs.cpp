@@ -26,7 +26,7 @@ void imgToHeader(const fs::path& img) {
    unsigned char pixel;
    size_t position = 0;
    while (image.read(reinterpret_cast<char*>(&pixel), sizeof(unsigned char))) { // same as doing sizeof(char)
-      header << "0x" << std::hex << int(pixel) << (++position != length ? ", " : ", 0x00");
+      header << "0x" << std::hex << std::uppercase << static_cast<int>(pixel) << (++position != length ? ", " : ", 0x00");
    }
    header << "};\n";
 }
