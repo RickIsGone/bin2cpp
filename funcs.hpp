@@ -5,6 +5,6 @@
 
 namespace fs = std::filesystem;
 
-void imgToHeader(const fs::path& img);
+void imgToHeader(const fs::path& filePath);
 
 void error(std::string_view err);
