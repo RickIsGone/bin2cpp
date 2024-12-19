@@ -25,6 +25,7 @@ void binToHeader(const fs::path& filePath) {
    if (offset == 0) offset = filePath.string().find_last_of('/') == std::string::npos ? offset : filePath.string().find_last_of('/') + 1;
 
    header << "constexpr unsigned char " + filePath.string().substr(offset, filePath.string().find_first_of('.') - offset) + "[0x" << std::hex << length + 1 << "]{\n\t";
+   header << "constexpr unsigned char " + filePath.string().substr(offset, filePath.string().find_first_of('.') - offset) + "[0x" << std::hex << std::uppercase << length + 1 << "] = {\n\t ";
 
    unsigned char pixel;
    size_t position = 0;
