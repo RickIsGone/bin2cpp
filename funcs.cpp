@@ -9,7 +9,7 @@
 
 void binToHeader(const fs::path& filePath, const fs::path& outputDir) {
    std::ifstream binaryFile{filePath, std::ios::binary | std::ios::ate};
-   std::ofstream header{outputDir / (filePath.string().substr(0, filePath.string().find_last_of('.')) + ".hpp")};
+   std::ofstream header{outputDir / (filePath.stem().string() + ".hpp")};
    size_t length = binaryFile.tellg();
    binaryFile.seekg(0);
 
