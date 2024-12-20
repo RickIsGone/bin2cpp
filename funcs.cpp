@@ -6,9 +6,9 @@
 #define RED   "\x1B[91m"
 #define RESET "\x1B[0m"
 
-void binToHeader(const fs::path& filePath) {
+void binToHeader(const fs::path& filePath, const fs::path& outputDir) {
    std::ifstream binaryFile{filePath, std::ios::binary | std::ios::ate};
-   std::ofstream header{filePath.string().substr(0, filePath.string().find_last_of('.')) + ".hpp"};
+   std::ofstream header{outputDir / (filePath.string().substr(0, filePath.string().find_last_of('.')) + ".hpp")};
    size_t length = binaryFile.tellg();
    binaryFile.seekg(0);
 
@@ -36,4 +36,14 @@ void binToHeader(const fs::path& filePath) {
 
 void error(std::string_view err) {
    std::cerr << RED "error: " RESET << err << '\n';
+   exit(EXIT_FAILURE);
+}
+
+void help() {
+   std::cout << "Usage: bin2cpp [options] <file>\n"
+             << "Options:\n"
+             << "\t-o <dir>    output directory\n"
+             << "\t-h, --help  display usage\n\n";
+
+   exit(EXIT_SUCCESS);
 }
