@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include "funcs.hpp"
 
@@ -15,8 +16,6 @@ void binToHeader(const fs::path& filePath, const fs::path& outputDir) {
    header << "#pragma once\n\n"
           << "/**\n"
           << " * file generated with bin2cpp\n"
-          << " * Copyright (C) 2024\n"
-          << " * Riccardo Tedeschi\n"
           << " * https://github.com/rickisgone/bin2cpp\n"
           << " */\n\n";
 
@@ -26,12 +25,12 @@ void binToHeader(const fs::path& filePath, const fs::path& outputDir) {
 
    header << "constexpr unsigned char " + filePath.string().substr(offset, filePath.string().find_first_of('.') - offset) + "[0x" << std::hex << std::uppercase << length + 1 << "]{\n\t";
 
-   unsigned char pixel;
-   size_t position = 0;
-   while (binaryFile.read(reinterpret_cast<char*>(&pixel), sizeof(unsigned char))) { // same as doing sizeof(char)
-      header << "0x" << std::hex << std::uppercase << static_cast<int>(pixel) << (++position != length ? ", " : ", 0x00");
+   std::vector<unsigned char> pixels(length);
+   binaryFile.read(reinterpret_cast<char*>(pixels.data()), sizeof(unsigned char) * length); // same as doing sizeof(char) * length
+   for (unsigned char pixel : pixels) {
+      header << "0x" << std::hex << std::uppercase << static_cast<int>(pixel) << ", ";
    }
-   header << "};\n";
+   header << "0x00};\n";
 }
 
 void error(std::string_view err) {
