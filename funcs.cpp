@@ -1,24 +1,47 @@
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <vector>
+#ifdef _WIN32
+#include <WinSock.h>
+#elif defined(__linux__)
+#include <arpa/inet.h>
+#endif // defined(_WIN32)
 
 #include "funcs.hpp"
 
 #define RED   "\x1B[91m"
 #define RESET "\x1B[0m"
 
+// TODO: add jpg support
+std::string getImageSize(std::ifstream& image) {
+   size_t width, height;
+
+   image.seekg(16);
+   image.read(reinterpret_cast<char*>(&width), 4);
+   image.read(reinterpret_cast<char*>(&height), 4);
+
+   width = ntohl(width);
+   height = ntohl(height);
+   return std::to_string(width) + "x" + std::to_string(height);
+}
+
 void binToHeader(const fs::path& filePath, const fs::path& outputDir) {
    std::ifstream binaryFile{filePath, std::ios::binary | std::ios::ate};
    std::ofstream header{outputDir / (filePath.stem().string() + ".hpp")};
    size_t length = binaryFile.tellg();
-   binaryFile.seekg(0);
+   std::string extenstion = filePath.extension().string();
 
    header << "#pragma once\n\n"
           << "/**\n"
           << " * file generated with bin2cpp\n"
           << " * https://github.com/rickisgone/bin2cpp\n"
+          << " *\n"
+          << " * file extension: " << (filePath.has_extension() ? filePath.extension().string().substr(1) : "none") << '\n'
+          << (extenstion == ".png" ? " * img size: " + getImageSize(binaryFile) + '\n' : "") //  (|| extenstion == ".jpg" || extenstion == ".jpeg")
           << " */\n\n";
 
+   binaryFile.seekg(0);
    // looking for / and \ in the path and setting an offset so the variable wont have illegal chars in the name
    size_t offset = filePath.string().find_last_of('\\') == std::string::npos ? 0 : filePath.string().find_last_of('\\') + 1;
    if (offset == 0) offset = filePath.string().find_last_of('/') == std::string::npos ? offset : filePath.string().find_last_of('/') + 1;
