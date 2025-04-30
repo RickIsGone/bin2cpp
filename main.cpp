@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 
          } else if (argv[i] == "-o"sv) {
             if (argc < i + 2 || (!fs::is_directory(argv[i + 1]) && !fs::is_directory(outputDir / argv[i + 1])))
-               error(argc < i + 2 ? "no output directory provided" : "expected an output direcotry but got a file");
+               error(argc < i + 2 ? "no output directory provided" : "expected an output directory but got a file");
             else if (fs::is_directory(argv[i + 1]))
                outputDir = argv[++i];
             else
