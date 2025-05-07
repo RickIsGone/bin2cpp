@@ -43,7 +43,7 @@ void binToHeader(const fs::path& filePath, const fs::path& outputDir) {
 
    binaryFile.seekg(0);
 
-   header << "constexpr unsigned char " + filePath.stem().string() + "[0x" << std::hex << std::uppercase << length + 1 << "]{\n\t";
+   header << "constexpr unsigned char " + filePath.stem().string().substr(0, filePath.stem().string().find_last_of('.')) + "[0x" << std::hex << std::uppercase << length + 1 << "]{\n\t";
    std::vector<unsigned char> pixels(length);
    binaryFile.read(reinterpret_cast<char*>(pixels.data()), sizeof(unsigned char) * length); // same as doing sizeof(char) * length
    for (unsigned char pixel : pixels) {
