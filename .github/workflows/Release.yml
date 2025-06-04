@@ -96,12 +96,12 @@ jobs:
 
       - name: Rename Artifacts
         run: |
-          mv bin2cpp-linux.7z bin2cpp-linux-${{ env.new_tag }}.7z
-          mv bin2cpp-linux.zip bin2cpp-linux-${{ env.new_tag }}.zip
-          mv bin2cpp-linux.tar bin2cpp-linux-${{ env.new_tag }}.tar
-          mv bin2cpp-windows.7z bin2cpp-windows-${{ env.new_tag }}.7z
-          mv bin2cpp-windows.zip bin2cpp-windows-${{ env.new_tag }}.zip
-          mv bin2cpp-windows.tar bin2cpp-windows-${{ env.new_tag }}.tar
+          mv bin2cpp-linux.7z bin2cpp-linux-${{ env.version }}.7z
+          mv bin2cpp-linux.zip bin2cpp-linux-${{ env.version }}.zip
+          mv bin2cpp-linux.tar bin2cpp-linux-${{ env.version }}.tar
+          mv bin2cpp-windows.7z bin2cpp-windows-${{ env.version }}.7z
+          mv bin2cpp-windows.zip bin2cpp-windows-${{ env.version }}.zip
+          mv bin2cpp-windows.tar bin2cpp-windows-${{ env.version }}.tar
 
       - name: Create Release
         id: create_release
