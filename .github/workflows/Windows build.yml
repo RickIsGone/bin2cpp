@@ -23,8 +23,8 @@ jobs:
 
       matrix:
         build_type: [Release]
-        c_compiler: [clang, cl]
-        cpp_compiler: [clang++, cl]
+        c_compiler: [cl]
+        cpp_compiler: [cl]
 
     steps:
     - uses: actions/checkout@v4
