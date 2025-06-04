@@ -1,5 +1,7 @@
 # BIN2CPP
 
+[![Ubuntu build](https://github.com/RickIsGone/bin2cpp/actions/workflows/Ubuntu%20build.yml/badge.svg)](https://github.com/RickIsGone/bin2cpp/actions/workflows/Ubuntu%20build.yml) [![Windows build](https://github.com/RickIsGone/bin2cpp/actions/workflows/Windows%20build.yml/badge.svg)](https://github.com/RickIsGone/bin2cpp/actions/workflows/Windows%20build.yml)  
+
 bin2cpp is a CLI tool written entirely in C++20 that embeds binary files into C++ headers.  
 output files are structured like this:
 
