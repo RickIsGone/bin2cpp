@@ -24,6 +24,7 @@ jobs:
       - name: Set tag variable
         run: |
           echo "new_tag=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+          echo "version=$(echo "${{ github.event.inputs.tag_name }}" | sed 's/^v//')" >> $GITHUB_ENV
 
       - name: Create and push tag (if not exists)
         run: |
@@ -35,32 +36,32 @@ jobs:
       - name: Download Linux 7z artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux-${{ env.new_tag }}.7z
+          name: bin2cpp-linux-${{ env.version }}.7z
           path: ./
       - name: Download Linux zip artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux-${{ env.new_tag }}.zip
+          name: bin2cpp-linux-${{ env.version }}.zip
           path: ./
       - name: Download Linux tar artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux-${{ env.new_tag }}.tar
+          name: bin2cpp-linux-${{ env.version }}.tar
           path: ./
       - name: Download Windows 7z artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows-${{ env.new_tag }}.7z
+          name: bin2cpp-windows-${{ env.version }}.7z
           path: ./
       - name: Download Windows zip artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows-${{ env.new_tag }}.zip
+          name: bin2cpp-windows-${{ env.version }}.zip
           path: ./
       - name: Download Windows tar artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows-${{ env.new_tag }}.tar
+          name: bin2cpp-windows-${{ env.version }}.tar
           path: ./
 
       - name: Create Release
@@ -70,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           tag_name: ${{ env.new_tag }}
-          release_name: Release ${{ env.new_tag }}
+          release_name: Release ${{ env.version }}
           draft: false
           prerelease: false
 
