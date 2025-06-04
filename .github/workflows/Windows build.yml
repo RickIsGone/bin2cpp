@@ -55,3 +55,33 @@ jobs:
 
     # - name: Pack
     #   run: cpack -C ${{ steps.strings.outputs.build-output-dir }}
+    - name: Get version from latest tag
+      id: get_version
+      shell: bash
+      run: |
+        git fetch --tags
+        TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+        echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+    - name: Archive with 7z
+      run: 7z a bin2cpp-windows-${{ steps.get_version.outputs.version }}.7z .\build\Release\bin2cpp.exe
+    - name: Archive with zip
+      run: powershell Compress-Archive -Path .\build\Release\bin2cpp.exe -DestinationPath bin2cpp-windows-${{ steps.get_version.outputs.version }}.zip
+    - name: Archive with tar
+      shell: bash
+      run: tar -cvf bin2cpp-windows-${{ steps.get_version.outputs.version }}.tar -C build/Release bin2cpp.exe
+    - name: Upload Windows 7z artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bin2cpp-windows-${{ steps.get_version.outputs.version }}.7z
+        path: bin2cpp-windows-${{ steps.get_version.outputs.version }}.7z
+    - name: Upload Windows zip artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bin2cpp-windows-${{ steps.get_version.outputs.version }}.zip
+        path: bin2cpp-windows-${{ steps.get_version.outputs.version }}.zip
+    - name: Upload Windows tar artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bin2cpp-windows-${{ steps.get_version.outputs.version }}.tar
+        path: bin2cpp-windows-${{ steps.get_version.outputs.version }}.tar
+    

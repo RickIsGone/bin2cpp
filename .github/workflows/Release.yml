@@ -1,105 +1,15 @@
 name: Auto Tag & Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  wait-for-builds:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for Ubuntu build
-        uses: lewagon/wait-on-check-action@v1.3.3
-        with:
-          ref: ${{ github.ref }}
-          check-name: '^build \('
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-          filter-regexp: true
-          required-conclusion: success
-      - name: Wait for Windows build
-        uses: lewagon/wait-on-check-action@v1.3.3
-        with:
-          ref: ${{ github.ref }}
-          check-name: '^build \('
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-          filter-regexp: true
-          required-conclusion: success
-
-  build-linux:
-    needs: wait-for-builds
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential cmake p7zip-full zip
-      - name: Build Linux binary
-        run: |
-          mkdir build
-          cmake -S . -B build
-          cmake --build build --config Release
-      - name: Archive with 7z
-        run: 7z a bin2cpp-linux.7z ./build/bin2cpp
-      - name: Archive with zip
-        run: zip bin2cpp-linux.zip ./build/bin2cpp
-      - name: Archive with tar
-        run: tar -cvf bin2cpp-linux.tar -C build bin2cpp
-      - name: Upload Linux 7z artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bin2cpp-linux.7z
-          path: bin2cpp-linux.7z
-      - name: Upload Linux zip artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bin2cpp-linux.zip
-          path: bin2cpp-linux.zip
-      - name: Upload Linux tar artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bin2cpp-linux.tar
-          path: bin2cpp-linux.tar
-
-  build-windows:
-    needs: wait-for-builds
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Windows binary
-        run: |
-          mkdir build
-          cmake -S . -B build
-          cmake --build build --config Release
-      - name: Archive with 7z
-        run: 7z a bin2cpp-windows.7z .\build\Release\bin2cpp.exe
-      - name: Archive with zip
-        run: powershell Compress-Archive -Path .\build\Release\bin2cpp.exe -DestinationPath bin2cpp-windows.zip
-      - name: Archive with tar
-        shell: bash
-        run: tar -cvf bin2cpp-windows.tar -C build/Release bin2cpp.exe
-      - name: Upload Windows 7z artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bin2cpp-windows.7z
-          path: bin2cpp-windows.7z
-      - name: Upload Windows zip artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bin2cpp-windows.zip
-          path: bin2cpp-windows.zip
-      - name: Upload Windows tar artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bin2cpp-windows.tar
-          path: bin2cpp-windows.tar
-
   autotag-and-release:
-    needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Git user
         run: |
@@ -112,15 +22,8 @@ jobs:
       - name: Get latest tag
         id: get_tag
         run: |
+          git fetch --tags
           latest_tag=$(git tag --sort=-v:refname | head -n 1)
-          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
-
-      - name: Bump tag and push
-        id: bump_tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          latest_tag="${{ steps.get_tag.outputs.latest_tag }}"
           if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
             major=${BASH_REMATCH[1]}
             minor=${BASH_REMATCH[2]}
@@ -130,38 +33,44 @@ jobs:
             new_tag="v1.0.0"
           fi
           echo "new_tag=$new_tag" >> $GITHUB_ENV
-          git tag "$new_tag"
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} "$new_tag"
+          echo "NEW_TAG=$new_tag" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git tag ${{ env.new_tag }}
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} ${{ env.new_tag }}
 
       - name: Download Linux 7z artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux.7z
+          name: bin2cpp-linux-${{ env.new_tag#v }}.7z
           path: ./
       - name: Download Linux zip artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux.zip
+          name: bin2cpp-linux-${{ env.new_tag#v }}.zip
           path: ./
       - name: Download Linux tar artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux.tar
+          name: bin2cpp-linux-${{ env.new_tag#v }}.tar
           path: ./
       - name: Download Windows 7z artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows.7z
+          name: bin2cpp-windows-${{ env.new_tag#v }}.7z
           path: ./
       - name: Download Windows zip artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows.zip
+          name: bin2cpp-windows-${{ env.new_tag#v }}.zip
           path: ./
       - name: Download Windows tar artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows.tar
+          name: bin2cpp-windows-${{ env.new_tag#v }}.tar
           path: ./
 
       - name: Create Release
@@ -181,8 +90,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-linux.7z
-          asset_name: bin2cpp-linux.7z
+          asset_path: ./bin2cpp-linux-${{ env.new_tag#v }}.7z
+          asset_name: bin2cpp-linux-${{ env.new_tag#v }}.7z
           asset_content_type: application/x-7z-compressed
 
       - name: Upload Linux zip Release Asset
@@ -191,8 +100,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-linux.zip
-          asset_name: bin2cpp-linux.zip
+          asset_path: ./bin2cpp-linux-${{ env.new_tag#v }}.zip
+          asset_name: bin2cpp-linux-${{ env.new_tag#v }}.zip
           asset_content_type: application/zip
 
       - name: Upload Linux tar Release Asset
@@ -201,8 +110,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-linux.tar
-          asset_name: bin2cpp-linux.tar
+          asset_path: ./bin2cpp-linux-${{ env.new_tag#v }}.tar
+          asset_name: bin2cpp-linux-${{ env.new_tag#v }}.tar
           asset_content_type: application/x-tar
 
       - name: Upload Windows 7z Release Asset
@@ -211,8 +120,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-windows.7z
-          asset_name: bin2cpp-windows.7z
+          asset_path: ./bin2cpp-windows-${{ env.new_tag#v }}.7z
+          asset_name: bin2cpp-windows-${{ env.new_tag#v }}.7z
           asset_content_type: application/x-7z-compressed
 
       - name: Upload Windows zip Release Asset
@@ -221,8 +130,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-windows.zip
-          asset_name: bin2cpp-windows.zip
+          asset_path: ./bin2cpp-windows-${{ env.new_tag#v }}.zip
+          asset_name: bin2cpp-windows-${{ env.new_tag#v }}.zip
           asset_content_type: application/zip
 
       - name: Upload Windows tar Release Asset
@@ -231,6 +140,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-windows.tar
-          asset_name: bin2cpp-windows.tar
+          asset_path: ./bin2cpp-windows-${{ env.new_tag#v }}.tar
+          asset_name: bin2cpp-windows-${{ env.new_tag#v }}.tar
           asset_content_type: application/x-tar
