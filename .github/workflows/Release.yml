@@ -1,0 +1,98 @@
+name: Auto Tag & Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  wait-for-builds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Ubuntu build
+        uses: lewagon/wait-on-check-action@v1.3.3
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Ubuntu build'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+      - name: Wait for Windows build
+        uses: lewagon/wait-on-check-action@v1.3.3
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Windows build'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
+  autotag-and-release:
+    needs: wait-for-builds
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          latest_tag=$(git tag --sort=-v:refname | head -n 1)
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+
+      - name: Bump tag and push
+        id: bump_tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          latest_tag="${{ steps.get_tag.outputs.latest_tag }}"
+          if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            major=${BASH_REMATCH[1]}
+            minor=${BASH_REMATCH[2]}
+            patch=${BASH_REMATCH[3]}
+            new_tag="v$major.$minor.$((patch+1))"
+          else
+            new_tag="v1.0.0"
+          fi
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+          git tag "$new_tag"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} "$new_tag"
+
+      - name: Set up CMake
+        uses: jwlawson/actions-setup-cmake@v2
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake
+
+      - name: Build
+        run: |
+          mkdir build
+          cmake -S . -B build
+          cmake --build build --config Release
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        with:
+          tag_name: ${{ steps.bump_tag.outputs.new_tag }}
+          release_name: Release ${{ steps.bump_tag.outputs.new_tag }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/bin2cpp
+          asset_name: bin2cpp
+          asset_content_type: application/octet-stream
