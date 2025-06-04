@@ -35,36 +35,65 @@ jobs:
           fi
 
       - name: Download Linux 7z artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: Ubuntu build.yml
           name: bin2cpp-linux.7z
           path: ./
+          repo: RickIsGone/bin2cpp
+          branch: main
+          event: push
+
       - name: Download Linux zip artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: Ubuntu build.yml
           name: bin2cpp-linux.zip
           path: ./
+          repo: RickIsGone/bin2cpp
+          branch: main
+          event: push
+
       - name: Download Linux tar artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: Ubuntu build.yml
           name: bin2cpp-linux.tar
           path: ./
+          repo: RickIsGone/bin2cpp
+          branch: main
+          event: push
+
       - name: Download Windows 7z artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: Ubuntu build.yml
           name: bin2cpp-windows.7z
           path: ./
+          repo: RickIsGone/bin2cpp
+          branch: main
+          event: push
+
       - name: Download Windows zip artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: Ubuntu build.yml
           name: bin2cpp-windows.zip
           path: ./
+          repo: RickIsGone/bin2cpp
+          branch: main
+          event: push
+
       - name: Download Windows tar artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: Ubuntu build.yml
           name: bin2cpp-windows.tar
           path: ./
-      
+          repo: RickIsGone/bin2cpp
+          branch: main
+          event: push
+
       - name: Rename Artifacts
         run: |
           mv bin2cpp-linux.7z bin2cpp-linux-${{ env.new_tag }}.7z
