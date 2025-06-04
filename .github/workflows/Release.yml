@@ -2,9 +2,14 @@ name: Auto Tag & Release
 
 on:
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'release tag'
+        required: true
+        type: string
 
 jobs:
-  autotag-and-release: 
+  autotag-and-release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,30 +21,16 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      - name: Fetch all tags
-        run: git fetch --tags
-
-      - name: Get latest tag
-        id: get_tag
+      - name: Set tag variable
         run: |
-          git fetch --tags
-          latest_tag=$(git tag --sort=-v:refname | head -n 1)
-          if [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            major=${BASH_REMATCH[1]}
-            minor=${BASH_REMATCH[2]}
-            patch=${BASH_REMATCH[3]}
-            new_tag="v$major.$minor.$((patch+1))"
-          else
-            new_tag="v1.0.0"
+          echo "new_tag=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+
+      - name: Create and push tag (if not exists)
+        run: |
+          if ! git rev-parse ${{ env.new_tag }} >/dev/null 2>&1; then
+            git tag ${{ env.new_tag }}
+            git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }} ${{ env.new_tag }}
           fi
-          echo "new_tag=$new_tag" >> $GITHUB_ENV
-          echo "NEW_TAG=$new_tag" >> $GITHUB_OUTPUT
-
-      - name: Create and push tag
-        env: {}
-        run: |
-          git tag ${{ env.new_tag }}
-          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }} ${{ env.new_tag }}
 
       - name: Download Linux 7z artifact
         uses: actions/download-artifact@v4
