@@ -67,7 +67,7 @@ jobs:
       - name: Download Windows 7z artifact
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: Ubuntu build.yml
+          workflow: Windows build.yml
           name: bin2cpp-windows.7z
           path: ./
           repo: RickIsGone/bin2cpp
@@ -77,7 +77,7 @@ jobs:
       - name: Download Windows zip artifact
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: Ubuntu build.yml
+          workflow: Windows build.yml
           name: bin2cpp-windows.zip
           path: ./
           repo: RickIsGone/bin2cpp
@@ -87,7 +87,7 @@ jobs:
       - name: Download Windows tar artifact
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: Ubuntu build.yml
+          workflow: Windows build.yml
           name: bin2cpp-windows.tar
           path: ./
           repo: RickIsGone/bin2cpp
