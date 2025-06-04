@@ -67,28 +67,28 @@ jobs:
         echo "version=${TAG#v}" >> $GITHUB_OUTPUT
 
     - name: Archive with 7z
-      run: 7z a bin2cpp-linux-${{ steps.get_version.outputs.version }}.7z ./build/bin2cpp
+      run: 7z a bin2cpp-linux.7z ./build/bin2cpp
 
     - name: Archive with zip
-      run: zip bin2cpp-linux-${{ steps.get_version.outputs.version }}.zip ./build/bin2cpp
+      run: zip bin2cpp-linux.zip ./build/bin2cpp
 
     - name: Archive with tar
-      run: tar -cvf bin2cpp-linux-${{ steps.get_version.outputs.version }}.tar -C build bin2cpp
+      run: tar -cvf bin2cpp-linux.tar -C build bin2cpp
 
     - name: Upload Linux 7z artifact
       uses: actions/upload-artifact@v4
       with:
-        name: bin2cpp-linux-${{ steps.get_version.outputs.version }}.7z
-        path: bin2cpp-linux-${{ steps.get_version.outputs.version }}.7z
+        name: bin2cpp-linux.7z
+        path: bin2cpp-linux.7z
 
     - name: Upload Linux zip artifact
       uses: actions/upload-artifact@v4
       with:
-        name: bin2cpp-linux-${{ steps.get_version.outputs.version }}.zip
-        path: bin2cpp-linux-${{ steps.get_version.outputs.version }}.zip
+        name: bin2cpp-linux.zip
+        path: bin2cpp-linux.zip
 
     - name: Upload Linux tar artifact
       uses: actions/upload-artifact@v4
       with:
-        name: bin2cpp-linux-${{ steps.get_version.outputs.version }}.tar
-        path: bin2cpp-linux-${{ steps.get_version.outputs.version }}.tar
+        name: bin2cpp-linux.tar
+        path: bin2cpp-linux.tar

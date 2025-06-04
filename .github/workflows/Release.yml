@@ -36,34 +36,43 @@ jobs:
       - name: Download Linux 7z artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux-${{ env.version }}.7z
+          name: bin2cpp-linux.7z
           path: ./
       - name: Download Linux zip artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux-${{ env.version }}.zip
+          name: bin2cpp-linux.zip
           path: ./
       - name: Download Linux tar artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-linux-${{ env.version }}.tar
+          name: bin2cpp-linux.tar
           path: ./
       - name: Download Windows 7z artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows-${{ env.version }}.7z
+          name: bin2cpp-windows.7z
           path: ./
       - name: Download Windows zip artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows-${{ env.version }}.zip
+          name: bin2cpp-windows.zip
           path: ./
       - name: Download Windows tar artifact
         uses: actions/download-artifact@v4
         with:
-          name: bin2cpp-windows-${{ env.version }}.tar
+          name: bin2cpp-windows.tar
           path: ./
-
+      
+      - name: Rename Artifacts
+        run: |
+          mv bin2cpp-linux.7z bin2cpp-linux-${{ env.new_tag }}.7z
+          mv bin2cpp-linux.zip bin2cpp-linux-${{ env.new_tag }}.zip
+          mv bin2cpp-linux.tar bin2cpp-linux-${{ env.new_tag }}.tar
+          mv bin2cpp-windows.7z bin2cpp-windows-${{ env.new_tag }}.7z
+          mv bin2cpp-windows.zip bin2cpp-windows-${{ env.new_tag }}.zip
+          mv bin2cpp-windows.tar bin2cpp-windows-${{ env.new_tag }}.tar
+          
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
