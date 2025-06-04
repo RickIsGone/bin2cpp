@@ -20,8 +20,12 @@ int main(int argc, char** argv) {
             else
                error("output directory does not exist");
 
-         } else
-            filePath = argv[i];
+         } else {
+            if (filePath.has_filename())
+               error("multiple files provided, only one file can be processed at a time");
+            else
+               filePath = argv[i];
+         }
       }
 
       if (filePath.empty())

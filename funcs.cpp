@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -43,13 +44,19 @@ void binToHeader(const fs::path& filePath, const fs::path& outputDir) {
 
    binaryFile.seekg(0);
 
-   header << "constexpr unsigned char " + filePath.stem().string().substr(0, filePath.stem().string().find_last_of('.')) + "[0x" << std::hex << std::uppercase << length + 1 << "]{\n\t";
+   // changing every - to _ in the file name so it can be used as a variable name
+   std::string fileName = filePath.filename().string();
+   for (size_t i = 0; i < filePath.string().find_first_of('.'); ++i) {
+      if (fileName[i] == '-')
+         fileName[i] = '_';
+   }
+   header << "constexpr unsigned char " + fileName.substr(0, fileName.find_first_of('.')) + "[0x" << std::hex << std::uppercase << length << "]{\n\t";
+
    std::vector<unsigned char> pixels(length);
    binaryFile.read(reinterpret_cast<char*>(pixels.data()), sizeof(unsigned char) * length); // same as doing sizeof(char) * length
-   for (unsigned char pixel : pixels) {
-      header << "0x" << std::hex << std::uppercase << static_cast<int>(pixel) << ", ";
+   for (size_t i = 0; unsigned char pixel : pixels) {
+      header << "0x" << std::hex << std::uppercase << static_cast<int>(pixel) << (i++ != pixels.size() - 1 ? ", " : "};\n");
    }
-   header << "0x00};\n";
 }
 
 void error(std::string_view err) {
@@ -58,7 +65,7 @@ void error(std::string_view err) {
 }
 
 void help() {
-   std::cout << "Usage: bin2cpp [options] <file>\n"
+   std::cout << "Usage: bin2cpp <file> [options]\n"
              << "Options:\n"
              << "\t-o <dir>    output directory\n"
              << "\t-h, --help  display usage\n\n";
