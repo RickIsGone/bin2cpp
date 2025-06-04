@@ -120,8 +120,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-linux-${{ env.new_tag }}.7z
-          asset_name: bin2cpp-linux-${{ env.new_tag }}.7z
+          asset_path: ./bin2cpp-linux-${{ env.version }}.7z
+          asset_name: bin2cpp-linux-${{ env.version }}.7z
           asset_content_type: application/x-7z-compressed
 
       - name: Upload Linux zip Release Asset
@@ -130,8 +130,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-linux-${{ env.new_tag }}.zip
-          asset_name: bin2cpp-linux-${{ env.new_tag }}.zip
+          asset_path: ./bin2cpp-linux-${{ env.version }}.zip
+          asset_name: bin2cpp-linux-${{ env.version }}.zip
           asset_content_type: application/zip
 
       - name: Upload Linux tar Release Asset
@@ -140,8 +140,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-linux-${{ env.new_tag }}.tar
-          asset_name: bin2cpp-linux-${{ env.new_tag }}.tar
+          asset_path: ./bin2cpp-linux-${{ env.version }}.tar
+          asset_name: bin2cpp-linux-${{ env.version }}.tar
           asset_content_type: application/x-tar
 
       - name: Upload Windows 7z Release Asset
@@ -150,8 +150,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-windows-${{ env.new_tag }}.7z
-          asset_name: bin2cpp-windows-${{ env.new_tag }}.7z
+          asset_path: ./bin2cpp-windows-${{ env.version }}.7z
+          asset_name: bin2cpp-windows-${{ env.version }}.7z
           asset_content_type: application/x-7z-compressed
 
       - name: Upload Windows zip Release Asset
@@ -160,8 +160,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-windows-${{ env.new_tag }}.zip
-          asset_name: bin2cpp-windows-${{ env.new_tag }}.zip
+          asset_path: ./bin2cpp-windows-${{ env.version }}.zip
+          asset_name: bin2cpp-windows-${{ env.version }}.zip
           asset_content_type: application/zip
 
       - name: Upload Windows tar Release Asset
@@ -170,6 +170,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./bin2cpp-windows-${{ env.new_tag }}.tar
-          asset_name: bin2cpp-windows-${{ env.new_tag }}.tar
+          asset_path: ./bin2cpp-windows-${{ env.version }}.tar
+          asset_name: bin2cpp-windows-${{ env.version }}.tar
           asset_content_type: application/x-tar
