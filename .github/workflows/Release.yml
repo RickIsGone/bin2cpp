@@ -27,6 +27,7 @@ jobs:
           echo "version=$(echo "${{ github.event.inputs.tag_name }}" | sed 's/^v//')" >> $GITHUB_ENV
 
       - name: Create and push tag (if not exists)
+        env: {}
         run: |
           if ! git rev-parse ${{ env.new_tag }} >/dev/null 2>&1; then
             git tag ${{ env.new_tag }}
@@ -72,7 +73,7 @@ jobs:
           mv bin2cpp-windows.7z bin2cpp-windows-${{ env.new_tag }}.7z
           mv bin2cpp-windows.zip bin2cpp-windows-${{ env.new_tag }}.zip
           mv bin2cpp-windows.tar bin2cpp-windows-${{ env.new_tag }}.tar
-          
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
