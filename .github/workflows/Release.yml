@@ -36,6 +36,7 @@ jobs:
           echo "NEW_TAG=$new_tag" >> $GITHUB_OUTPUT
 
       - name: Create and push tag
+        env: {}
         run: |
           git tag ${{ env.new_tag }}
           git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }} ${{ env.new_tag }}
